@@ -1,10 +1,11 @@
-# lambda-starter
+# hvt-geolocation
 
-A starting pattern for AWS lambda in Typescript 
+A lambda for querying, sorting (nearest-frist) and paginating ATFs based on a supplied postcode.
 
 **Requirements**
 
-- node v12.18.3
+- node v12.18.4
+- [Docker](https://www.docker.com/get-started)
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 
 
@@ -18,9 +19,8 @@ A starting pattern for AWS lambda in Typescript
 
 - `npm run start:dev`
 - To ensure that the lambdas have been successfully served, run the following command in a separate terminal:
-    - `curl --request GET http://localhost:3000/?message=hello%20world`
-    - the response should be: `{"queryParams": {"message": "hello world"}}`
-- To run CloudWatch Event lambdas: `npm run invoke -- CloudWatchEventLambdaFunction`
+    - `curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`
+    - the response should be: `{"Items": [ <ATF-1>, <ATF-2>, ... ]}`
 
 
 **Debug Lambdas Locally (VS Code only)**
@@ -28,8 +28,7 @@ A starting pattern for AWS lambda in Typescript
 - Run lambdas in debug mode: `npm run start:dev -- -d 5858`
 - Add a breakpoint to the lambda being tested (`src/handler/get.ts`)
 - Run the debug config from VS Code that corresponds to lambda being tested (`GetLambdaFunction`)
-- Send an HTTP request to the lambda's URI (`curl --request GET http://localhost:3000/?message=hello%20world`)
-- To debug CloudWatch Event lambdas: `npm run invoke -- CloudWatchEventLambdaFunction -d 5858`
+- Send an HTTP request to the lambda's URI (`curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`)
 
 
 **Tests**

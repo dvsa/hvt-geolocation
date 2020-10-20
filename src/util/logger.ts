@@ -1,10 +1,8 @@
-import type { APIGatewayProxyEvent, Context } from 'aws-lambda';
-
 export class Logger {
   logFormat: string;
 
   constructor(apiRequestId: string, correlationId: string) {
-    this.logFormat = JSON.stringify({ apiRequestId, correlationId, message: '%s' });
+    this.logFormat = `{ "apiRequestId": "${apiRequestId}", "correlationId": "${correlationId}", "message": "%s" }`;
   }
 
   public debug(msg: string): void {
@@ -24,10 +22,8 @@ export class Logger {
   }
 }
 
-export const createLogger = (event: APIGatewayProxyEvent, context: Context): Logger => {
-  const lambdaRequestId: string = context.awsRequestId;
-  const apiRequestId: string = event?.requestContext.requestId;
-  const correlationId: string = event?.headers?.['X-Correlation-Id'] || lambdaRequestId;
+const create = (apiRequestId: string, correlationId: string): Logger => new Logger(apiRequestId, correlationId);
 
-  return new Logger(apiRequestId, correlationId);
+export const logger = {
+  create,
 };
