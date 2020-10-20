@@ -45,7 +45,7 @@ describe('Test lambda handler', () => {
       unsortedAtfs.push(createAtf(i, i));
     }
     const atfsResponseMock: AxiosResponse = <AxiosResponse> {
-      data: { Items: unsortedAtfs, Count: unsortedAtfs.length },
+      data: { Items: unsortedAtfs, Count: unsortedAtfs.length, ScannedCount: unsortedAtfs.length },
     };
     const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.reverse();
     const paginatedAtfsMock: AuthorisedTestingFacility[] = sortedAtfsMock.slice(0, 11);
@@ -58,7 +58,11 @@ describe('Test lambda handler', () => {
     const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual(JSON.stringify({ Items: paginatedAtfsMock, Count: paginatedAtfsMock.length }));
+    expect(res.body).toEqual(JSON.stringify({
+      Items: paginatedAtfsMock,
+      Count: paginatedAtfsMock.length,
+      ScannedCount: unsortedAtfs.length,
+    }));
   });
 
   test('should return 200 with all ATFs in order (nearest first) when pagination fails', async () => {
@@ -82,7 +86,11 @@ describe('Test lambda handler', () => {
     const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual(JSON.stringify({ Items: sortedAtfsMock, Count: sortedAtfsMock.length }));
+    expect(res.body).toEqual(JSON.stringify({
+      Items: sortedAtfsMock,
+      Count: sortedAtfsMock.length,
+      ScannedCount: unsortedAtfs.length,
+    }));
   });
 
   test('should throw error when failed to fetch postcode lat/long values', async () => {
