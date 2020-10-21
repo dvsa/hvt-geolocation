@@ -1,17 +1,24 @@
 const paginate = <T> (sortedItems: T[], page: string, limit: string): T[] => {
+  let start = 0;
+  let end = sortedItems.length;
+
   if (limit) {
-    let start = 0;
-    let end = Number(limit);
+    end = Number(limit);
 
     if (page) {
-      start = (Number(page) - 1) * end;
-      end *= Number(page);
+      const pageNo = Number(page);
+      start = (pageNo - 1) * end;
+
+      end *= pageNo;
     }
 
-    return sortedItems.slice(start, end);
+    // end must be <= sortedItems.length
+    if (end > sortedItems.length) {
+      end = sortedItems.length;
+    }
   }
 
-  return sortedItems;
+  return sortedItems.slice(start, end);
 };
 
 export const pagination = {
