@@ -8,8 +8,8 @@
     "lint:ci": "eslint '*/**/*.ts'",
     "test": "jest --coverage",
     "test:ci": "jest --ci",
-    "build:dev": "NODE_ENV=development webpack-cli",
-    "build:prod": "NODE_ENV=production webpack-cli",
+    "build:dev": "webpack-cli --config webpack.development.js",
+    "build:prod": "webpack-cli --config webpack.production.js",
     "start:dev": "sam local start-api -p 3008 --docker-network hvt-network",
     "invoke": "sam local invoke"
   },
