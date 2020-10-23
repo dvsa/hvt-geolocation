@@ -3,7 +3,7 @@ const AwsSamPlugin = require('aws-sam-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const awsSamPlugin = new AwsSamPlugin({ vscodeDebug: false });
-const lambdaName = 'LambdaFunction'; // must correspond to lambda name in template.yml
+const lambdaName = 'GeolocationFunction'; // must correspond to lambda name in template.yml
 
 module.exports = {
   // Loads the entry object from the AWS::Serverless::Function resources in your
@@ -16,9 +16,6 @@ module.exports = {
     libraryTarget: 'commonjs2',
     path: path.resolve('.'),
   },
-
-  // Create source maps
-  devtool: 'source-map',
 
   // Resolve .ts and .js extensions
   resolve: {
@@ -35,9 +32,6 @@ module.exports = {
   externals: {
     fsevents: 'require(\'fsevents\')',
   },
-
-  // Set the webpack mode
-  mode: process.env.NODE_ENV || 'production',
 
   // Add the TypeScript loader
   module: {
