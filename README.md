@@ -1,37 +1,36 @@
 # hvt-geolocation
 
-A lambda for querying, sorting (nearest-frist) and paginating ATFs based on a supplied postcode.
+A Serverless Node lambda (GeolocationFunction) for querying, sorting (nearest-frist) and paginating ATFs based on a supplied postcode.
 
-**Requirements**
+## Requirements
 
-- node v12.18.4
+- [node v12.18.4](https://nodejs.org/en/download/releases/)
 - [Docker](https://www.docker.com/get-started)
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 
 
-**Build**
+## Run Locally
 
-- `npm i`
-- `npm run build:dev`
-
-
-**Run Lambdas Locally**
-
-- `npm run start:dev`
-- To ensure that the lambdas have been successfully served, run the following command in a separate terminal:
+1. Follow build steps in [hvt-data](https://gitlab.motdev.org.uk/hvtesting/hvt-data/) to prepare local dataset
+1. [hvt-read-api](https://gitlab.motdev.org.uk/hvtesting/hvt-read-api/) must be running
+1. `npm i`
+1. `cp .env.development .env`
+1. `npm run build:dev`
+1. `npm run start:dev`
+1. To ensure that the lambdas have been successfully served, run the following command in a separate terminal:
     - `curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`
-    - the response should be: `{"Items": [ <ATF-1>, <ATF-2>, ... ]}`
+    - the response should be in the following format: `{ "Items": [ <ATF-1>, <ATF-2>, ... ] }`
 
 
-**Debug Lambdas Locally (VS Code only)**
+## Debug Locally (VS Code only)
 
-- Run lambdas in debug mode: `npm run start:dev -- -d 5858`
-- Add a breakpoint to the lambda being tested (`src/handler/get.ts`)
-- Run the debug config from VS Code that corresponds to lambda being tested (`GetLambdaFunction`)
-- Send an HTTP request to the lambda's URI (`curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`)
+1. Run lambdas in debug mode: `npm run start:dev -- -d 5858`
+1. Add a breakpoint to the lambda being tested (`src/handler/index.ts`)
+1. Run the debug config from VS Code that corresponds to lambda being tested (`GeolocationFunction`)
+1. Send an HTTP request to the lambda's URI (`curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`)
 
 
-**Tests**
+## Tests
 
 - The [Jest](https://jestjs.io/) framework is used to run tests and collect code coverage
 - To run the tests, run the following command within the root directory of the project: `npm test`
@@ -39,7 +38,15 @@ A lambda for querying, sorting (nearest-frist) and paginating ATFs based on a su
     - The coverage requirements can be set in `jest.config.js`
 
 
-**Logging**
+## Build for Production
+
+1. `npm i`
+1. add environment variables to `.env`
+1. `npm run build:prod`
+1.  Zip file can be found in `./dist/`
+
+
+## Logging
 
 By using a utility wrapper (`src/utility/logger`) surrounding `console.log`, the `awsRequestId` and a "correlation ID" is output with every debug/info/warn/error message.
 
