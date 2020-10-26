@@ -2,24 +2,24 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
-    GeolocationFunction:
-      Type: 'AWS::Serverless::Function'
-      Properties:
-        CodeUri: src/handler/
-        Handler: index.handler
-        Runtime: nodejs12.x
-        Timeout: 10
-        Events:
-          GetLambdaApi:
-            Type: Api
-            Properties:
-              Path: /{postcode}
-              Method: get
+  GeolocationFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: src/handler/
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Timeout: 10
+      Events:
+        GeolocationApi:
+          Type: Api
+          Properties:
+            Path: /{postcode}
+            Method: get
 
 Outputs:
-  LambdaApi:
-    Description: "API Gateway endpoint URL for LambdaFunction on dev stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Dev/"
-  LambdaFunction:
+  GeolocationApi:
+    Description: "API Gateway endpoint URL for GeolocationFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+  GeolocationFunction:
     Description: "Lambda Function ARN"
-    Value: !GetAtt LambdaFunction.Arn
+    Value: !GetAtt GeolocationFunction.Arn
