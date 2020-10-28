@@ -30,4 +30,14 @@ describe('Test pagination', () => {
 
     expect(paginatedItems).toEqual(['1', '2', '3', '4', '5']);
   });
+
+  test('paginate() returns all items when limit is undefined', () => {
+    const sortedItems: string[] = ['1', '2'];
+    const page = '1';
+    const limit = undefined;
+
+    const paginatedItems: string[] = pagination.paginate(sortedItems, page, limit);
+
+    expect(paginatedItems).toEqual(sortedItems);
+  });
 });

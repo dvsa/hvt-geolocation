@@ -10,18 +10,19 @@ import { sortAtfs } from '../../src/lib/sortAtfs';
 import { pagination } from '../../src/lib/pagination';
 import { handler } from '../../src/handler';
 import { AuthorisedTestingFacility } from '../../src/models/authorisedTestingFacility';
+import { createAtfsSortedDescByLatLong } from '../data-providers/atf.dataProvider';
+
+const paginationPage = 1;
+const paginationLimit = 10;
 
 let eventMock: APIGatewayProxyEvent;
 let contextMock: Context;
-
-// eslint-disable-next-line max-len
-const createAtf = (lat: number, long: number): AuthorisedTestingFacility => <AuthorisedTestingFacility> { geoLocation: { lat, long } };
 
 describe('Test lambda handler', () => {
   beforeAll(() => {
     eventMock = <APIGatewayProxyEvent> <unknown> {
       pathParameters: { postcode: 'AB123CD' },
-      queryStringParameters: { page: '1', limit: '10' },
+      queryStringParameters: { page: paginationPage, limit: paginationLimit },
       requestContext: { },
     };
     contextMock = <Context> {};
@@ -40,20 +41,16 @@ describe('Test lambda handler', () => {
     const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
       data: { postcode: eventMock.pathParameters.postcode, lat: 0, long: 0 },
     };
-    const unsortedAtfs: AuthorisedTestingFacility[] = [];
-    for (let i = 50; i > 0; i--) {
-      unsortedAtfs.push(createAtf(i, i));
-    }
+    const unsortedAtfs: AuthorisedTestingFacility[] = createAtfsSortedDescByLatLong(50);
     const atfsResponseMock: AxiosResponse = <AxiosResponse> {
       data: { Items: unsortedAtfs, Count: unsortedAtfs.length, ScannedCount: unsortedAtfs.length },
     };
-    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.reverse();
-    const paginatedAtfsMock: AuthorisedTestingFacility[] = sortedAtfsMock.slice(0, 11);
+    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.slice().reverse();
+    const paginatedAtfsMock: AuthorisedTestingFacility[] = sortedAtfsMock.slice(0, paginationLimit);
     jest.spyOn(request, 'get')
       .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
       .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
     jest.spyOn(sortAtfs, 'nearestFirst').mockReturnValue(sortedAtfsMock);
-    jest.spyOn(pagination, 'paginate').mockReturnValue(paginatedAtfsMock);
 
     const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
 
@@ -65,18 +62,46 @@ describe('Test lambda handler', () => {
     }));
   });
 
+  test('should return 200 with all ATFs in order (nearest first) when no pagination params provided', async () => {
+    const eventWithMissingQueryParams: APIGatewayProxyEvent = <APIGatewayProxyEvent> <unknown> {
+      pathParameters: { postcode: 'AB123CD' },
+      queryStringParameters: { page: undefined, limit: undefined },
+      requestContext: { },
+    };
+    const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
+      data: { postcode: eventWithMissingQueryParams.pathParameters.postcode, lat: 0, long: 0 },
+    };
+    const unsortedAtfs: AuthorisedTestingFacility[] = createAtfsSortedDescByLatLong(50);
+    const atfsResponseMock: AxiosResponse = <AxiosResponse> {
+      data: { Items: unsortedAtfs, Count: unsortedAtfs.length },
+    };
+    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.slice().reverse();
+    jest.spyOn(request, 'get')
+      .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
+      .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
+    jest.spyOn(sortAtfs, 'nearestFirst').mockReturnValue(sortedAtfsMock);
+    const paginationSpy = jest.spyOn(pagination, 'paginate');
+
+    const res: APIGatewayProxyResult = await handler(eventWithMissingQueryParams, contextMock);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(JSON.stringify({
+      Items: sortedAtfsMock,
+      Count: sortedAtfsMock.length,
+      ScannedCount: unsortedAtfs.length,
+    }));
+    expect(paginationSpy).toHaveBeenLastCalledWith(sortedAtfsMock, undefined, undefined);
+  });
+
   test('should return 200 with all ATFs in order (nearest first) when pagination fails', async () => {
     const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
       data: { postcode: eventMock.pathParameters.postcode, lat: 0, long: 0 },
     };
-    const unsortedAtfs: AuthorisedTestingFacility[] = [];
-    for (let i = 50; i > 0; i--) {
-      unsortedAtfs.push(createAtf(i, i));
-    }
+    const unsortedAtfs: AuthorisedTestingFacility[] = createAtfsSortedDescByLatLong(50);
     const atfsResponseMock: AxiosResponse = <AxiosResponse> {
       data: { Items: unsortedAtfs, Count: unsortedAtfs.length },
     };
-    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.reverse();
+    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.slice().reverse();
     jest.spyOn(request, 'get')
       .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
       .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
@@ -114,10 +139,7 @@ describe('Test lambda handler', () => {
     const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
       data: { postcode: eventMock.pathParameters.postcode, lat: 0, long: 0 },
     };
-    const unsortedAtfs: AuthorisedTestingFacility[] = [];
-    for (let i = 50; i > 0; i--) {
-      unsortedAtfs.push(createAtf(i, i));
-    }
+    const unsortedAtfs: AuthorisedTestingFacility[] = createAtfsSortedDescByLatLong(50);
     const atfsResponseMock: AxiosResponse = <AxiosResponse> {
       data: { Items: unsortedAtfs, Count: unsortedAtfs.length },
     };
