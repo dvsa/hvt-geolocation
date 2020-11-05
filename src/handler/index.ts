@@ -27,8 +27,11 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   log.info(`Fetching nearest ATFs; postcode [${postcode}], page [${page}], limit [${limit}]`);
 
   // Get Latitude & Longitude for postcode
+  //use read not read-all fix for prod so not affect local
+  const url = cfg.readApiUrl.replace('-all', '');
   const geoLocation: GeoLocation = await request.get(
-    `${cfg.readApiUrl}/${cfg.dynamoDbLocationTable}/${postcode}?keyName=postcode`, corrId,
+    //use read not read-all fix for prod so not affect local
+    `${url}/${cfg.dynamoDbLocationTable}/${postcode}?keyName=postcode`, corrId,
   )
     .then((response: AxiosResponse<GeoLocation>) => {
       log.info(`Fetched postcode [${postcode}] geo-location: [${JSON.stringify(response.data)}]`);

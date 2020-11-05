@@ -27,7 +27,7 @@ describe('Test lambda handler', () => {
     };
     contextMock = <Context> {};
 
-    jest.spyOn(config, 'load').mockReturnValue(<Config> { });
+    jest.spyOn(config, 'load').mockReturnValue(<Config> { readApiUrl:"mock"});
     jest.spyOn(correlation, 'getId').mockReturnValue('123-456-789');
     jest.spyOn(logger, 'create').mockReturnValue(<Logger> <unknown> {
       debug: jest.fn(),
