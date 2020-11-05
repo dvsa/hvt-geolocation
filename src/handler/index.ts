@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
 
   // Get Latitude & Longitude for postcode
   const geoLocation: GeoLocation = await request.get(
-    `${cfg.readApiUrl}${cfg.dynamoDbLocationTable}/${postcode}?keyName=postcode`, corrId,
+    `${cfg.readApiUrl}/${cfg.dynamoDbLocationTable}/${postcode}?keyName=postcode`, corrId,
   )
     .then((response: AxiosResponse<GeoLocation>) => {
       log.info(`Fetched postcode [${postcode}] geo-location: [${JSON.stringify(response.data)}]`);
@@ -42,7 +42,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
 
   // Get ATFs
   const atfs: PagedResponse<AuthorisedTestingFacility> = await request.get(
-    `${cfg.readApiUrl}${cfg.dynamoDbAtfTable}`, corrId,
+    `${cfg.readApiUrl}/${cfg.dynamoDbAtfTable}`, corrId,
   )
     .then((response: AxiosResponse<PagedResponse<AuthorisedTestingFacility>>) => {
       log.info(`Fetched ATFs [${response.data.Count}]`);
