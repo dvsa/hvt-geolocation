@@ -9,6 +9,7 @@ import { request } from '../util/request';
 import { PagedResponse } from '../models/pagedResponse';
 import { pagination } from '../lib/pagination';
 import { sortAtfs } from '../lib/sortAtfs';
+import { removeAtfsWithNoAvailability } from '../lib/filterAtfs';
 
 /**
  * Lambda Handler
@@ -24,13 +25,14 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   const { postcode } = event.pathParameters;
   const page: string = event.queryStringParameters?.page;
   const limit: string = event.queryStringParameters?.limit;
+  const includeNoAvailabilityFlag: string = event.queryStringParameters?.includeNoAvailability;
   log.info(`Fetching nearest ATFs; postcode [${postcode}], page [${page}], limit [${limit}]`);
 
   // Get Latitude & Longitude for postcode
-  //use read not read-all fix for prod so not affect local
+  // use read not read-all fix for prod so not affect local
   const url = cfg.readApiUrl.replace('-all', '');
   const geoLocation: GeoLocation = await request.get(
-    //use read not read-all fix for prod so not affect local
+    // use read not read-all fix for prod so not affect local
     `${url}/${cfg.dynamoDbLocationTable}/${postcode}?keyName=postcode`, corrId,
   )
     .then((response: AxiosResponse<GeoLocation>) => {
@@ -39,7 +41,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     })
     .catch((error) => {
       const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
-      log.error(`An unexpected error occured when fetching postcode [${postcode}] geo-location: ${errorString}`);
+      log.error(`An unexpected error occurred when fetching postcode [${postcode}] geo-location: ${errorString}`);
       throw error;
     });
 
@@ -53,9 +55,14 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     })
     .catch((error) => {
       const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
-      log.error(`An unexpected error occured when fetching ATFs: ${errorString}`);
+      log.error(`An unexpected error occurred when fetching ATFs: ${errorString}`);
       throw error;
     });
+
+  // Filter out those with no availability
+  if (includeNoAvailabilityFlag === 'false') {
+    atfs.Items = removeAtfsWithNoAvailability(atfs.Items);
+  }
 
   // Sort ATFs
   try {
@@ -63,7 +70,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     log.info(`Sorted ATFs [${atfs.Count}]`);
   } catch (error) {
     const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
-    log.error(`An unexpected error occured when sorting ATFs: ${errorString}`);
+    log.error(`An unexpected error occurred when sorting ATFs: ${errorString}`);
     throw error;
   }
 
@@ -73,7 +80,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     log.info(`Paginated ATFs [${atfs.Count}]; page [${page}], limit [${limit}]`);
   } catch (error) {
     const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
-    log.warn(`An unexpected error occured when paginating ATFs: ${errorString}`);
+    log.warn(`An unexpected error occurred when paginating ATFs: ${errorString}`);
   }
 
   return Promise.resolve({
