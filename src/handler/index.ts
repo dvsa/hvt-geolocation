@@ -1,4 +1,4 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { AxiosResponse } from 'axios';
 import { config, Config } from '../lib/config';
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
@@ -25,8 +25,9 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   const { postcode } = event.pathParameters;
   const page: string = event.queryStringParameters?.page;
   const limit: string = event.queryStringParameters?.limit;
-  const includeNoAvailabilityFlag: string = event.queryStringParameters?.includeNoAvailability;
-  log.info(`Fetching nearest ATFs; postcode [${postcode}], page [${page}], limit [${limit}]`);
+  const removeNoAvailabilityFlag: boolean = event.queryStringParameters?.removeAtfsWithNoAvailability === 'true';
+  log.info(`Fetching nearest ATFs; postcode [${postcode}], page [${page}], limit [${limit}], 
+    removeAtfsWithNoAvailability [${removeNoAvailabilityFlag.toString()}]`);
 
   // Get Latitude & Longitude for postcode
   // use read not read-all fix for prod so not affect local
@@ -58,10 +59,16 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       log.error(`An unexpected error occurred when fetching ATFs: ${errorString}`);
       throw error;
     });
-
   // Filter out those with no availability
-  if (includeNoAvailabilityFlag === 'false') {
-    atfs.Items = removeAtfsWithNoAvailability(atfs.Items);
+  if (removeNoAvailabilityFlag) {
+    try {
+      atfs.Items = removeAtfsWithNoAvailability(atfs.Items);
+      log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
+    } catch (error) {
+      const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
+      log.error(`An unexpected error occurred when filtering ATFs with no availability: ${errorString}`);
+      throw error;
+    }
   }
 
   // Sort ATFs
