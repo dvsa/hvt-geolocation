@@ -1,5 +1,5 @@
 import { AuthorisedTestingFacility } from '../../src/models/authorisedTestingFacility';
-import { removeAtfsWithNoAvailability } from '../../src/lib/filterAtfs';
+import { filterAtfs } from '../../src/lib/filterAtfs';
 
 describe('filterAtfs library unit tests', () => {
   describe('removeAtfsWithNoAvailability tests', () => {
@@ -9,7 +9,7 @@ describe('filterAtfs library unit tests', () => {
         { availability: { isAvailable: true } },
         { availability: { isAvailable: true } },
       ];
-      const result: AuthorisedTestingFacility[] = removeAtfsWithNoAvailability(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
       expect(result).toEqual(atfs);
     });
 
@@ -19,7 +19,7 @@ describe('filterAtfs library unit tests', () => {
         { availability: { isAvailable: true } },
         { availability: { isAvailable: false } },
       ];
-      const result: AuthorisedTestingFacility[] = removeAtfsWithNoAvailability(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
       const expectedAtfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]>[
         { availability: { isAvailable: true } },
       ];
@@ -32,7 +32,7 @@ describe('filterAtfs library unit tests', () => {
         { availability: { isAvailable: true } },
         { availability: { isAvailable: true } },
       ];
-      const result: AuthorisedTestingFacility[] = removeAtfsWithNoAvailability(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
       expect(result).toEqual(atfs);
     });
 
@@ -40,7 +40,7 @@ describe('filterAtfs library unit tests', () => {
       const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]>[
         { geoLocation: { lat: 5, long: 5 } },
       ];
-      const result: AuthorisedTestingFacility[] = removeAtfsWithNoAvailability(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
       expect(result).toEqual(atfs);
     });
   });

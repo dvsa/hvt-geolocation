@@ -9,7 +9,7 @@ import { request } from '../util/request';
 import { PagedResponse } from '../models/pagedResponse';
 import { pagination } from '../lib/pagination';
 import { sortAtfs } from '../lib/sortAtfs';
-import { removeAtfsWithNoAvailability } from '../lib/filterAtfs';
+import { filterAtfs } from '../lib/filterAtfs';
 
 /**
  * Lambda Handler
@@ -62,7 +62,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   // Filter out those with no availability
   if (removeNoAvailabilityFlag) {
     try {
-      atfs.Items = removeAtfsWithNoAvailability(atfs.Items);
+      atfs.Items = filterAtfs.removeAtfsWithNoAvailability(atfs.Items);
       log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
     } catch (error) {
       const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));

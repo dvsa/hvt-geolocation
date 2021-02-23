@@ -1,5 +1,8 @@
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
 
-export const removeAtfsWithNoAvailability = (items: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => {
-  return items.filter((item) => item?.availability?.isAvailable !== false);
+// eslint-disable-next-line max-len
+const removeAtfsWithNoAvailability = (items: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => items.filter((item) => item?.availability?.isAvailable !== false);
+
+export const filterAtfs = {
+  removeAtfsWithNoAvailability,
 };
