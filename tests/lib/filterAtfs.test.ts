@@ -37,7 +37,7 @@ describe('filterAtfs library unit tests', () => {
       expect(result).toEqual(atfs);
     });
 
-    test('should not throw an exception if an ATF does not have availability data present', () => {
+    test('should not remove the ATF if it does not have availability data present', () => {
       const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]>[
         { geoLocation: { lat: 5, long: 5 } },
       ];
@@ -61,6 +61,14 @@ describe('filterAtfs library unit tests', () => {
         { availability: { isAvailable: false, endDate: dateOneHourAgo } },
       ];
       expect(result).toEqual(expectedAtfs);
+    });
+
+    test('ATFs with isAvailable set to false but with no end date should not be removed', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { availability: { isAvailable: false } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
+      expect(result).toEqual(atfs);
     });
   });
 });
