@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
+import type { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { AxiosResponse } from 'axios';
 import { config, Config } from '../lib/config';
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
@@ -61,14 +61,8 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     });
   // Filter out those with no availability
   if (removeNoAvailabilityFlag) {
-    try {
-      atfs.Items = filterAtfs.removeAtfsWithNoAvailability(atfs.Items);
-      log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
-    } catch (error) {
-      const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
-      log.error(`An unexpected error occurred when filtering ATFs with no availability: ${errorString}`);
-      throw error;
-    }
+    atfs.Items = filterAtfs.removeAtfsWithNoAvailability(atfs.Items);
+    log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
   }
 
   // Sort ATFs

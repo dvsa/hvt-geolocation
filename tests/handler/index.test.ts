@@ -98,7 +98,7 @@ describe('Test lambda handler', () => {
     expect(paginationSpy).toHaveBeenLastCalledWith(sortedAtfsMock, undefined, undefined);
   });
 
-  test('should call the removeAtfsWithNoAvailability filter function is query param is true', async () => {
+  test('should call the removeAtfsWithNoAvailability filter function if query param is true', async () => {
     const eventWithMissingQueryParams: APIGatewayProxyEvent = <APIGatewayProxyEvent> <unknown> {
       pathParameters: { postcode: 'AB123CD' },
       queryStringParameters: { page: undefined, limit: undefined, removeAtfsWithNoAvailability: 'true' },
@@ -126,7 +126,7 @@ describe('Test lambda handler', () => {
     expect(filterSpy).toHaveBeenCalledTimes(1);
   });
 
-  test('should not call the removeAtfsWithNoAvailability filter function is query param is false', async () => {
+  test('should not call the removeAtfsWithNoAvailability filter function if query param is false', async () => {
     const eventWithMissingQueryParams: APIGatewayProxyEvent = <APIGatewayProxyEvent> <unknown> {
       pathParameters: { postcode: 'AB123CD' },
       queryStringParameters: { page: undefined, limit: undefined, removeAtfsWithNoAvailability: 'false' },
@@ -154,7 +154,7 @@ describe('Test lambda handler', () => {
     expect(filterSpy).not.toHaveBeenCalled();
   });
 
-  test('should not call the removeAtfsWithNoAvailability filter function is query param is undefined', async () => {
+  test('should not call the removeAtfsWithNoAvailability filter function if query param is undefined', async () => {
     const eventWithMissingQueryParams: APIGatewayProxyEvent = <APIGatewayProxyEvent> <unknown> {
       pathParameters: { postcode: 'AB123CD' },
       queryStringParameters: { page: undefined, limit: undefined },
