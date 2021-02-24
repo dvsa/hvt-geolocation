@@ -63,6 +63,16 @@ describe('filterAtfs library unit tests', () => {
       expect(result).toEqual(expectedAtfs);
     });
 
+    test('ATFs with an invalid end date should be removed from the list of ATFs', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { availability: { isAvailable: false, endDate: 102029222222292e9 } },
+        { availability: { isAvailable: false, endDate: '' } },
+        { availability: { isAvailable: false, endDate: NaN } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
+      expect(result).toEqual(atfs);
+    });
+
     test('ATFs with isAvailable set to false but with no end date should not be removed', () => {
       const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
         { availability: { isAvailable: false } },

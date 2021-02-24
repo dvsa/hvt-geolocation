@@ -1,4 +1,4 @@
-import {
+import type {
   APIGatewayProxyEvent, APIGatewayProxyResult, Context,
 } from 'aws-lambda';
 import { AxiosResponse } from 'axios';
@@ -240,7 +240,7 @@ describe('Test lambda handler', () => {
     await expect(handler(eventMock, contextMock)).rejects.toThrow('oops!');
   });
 
-  test('should throw error when failed to filter ATFs with no availability', async () => {
+  test('should log any errors occurred during filtering but continue with the response', async () => {
     const eventWithFilterNoAvailability: APIGatewayProxyEvent = <APIGatewayProxyEvent> <unknown> {
       pathParameters: { postcode: 'AB123CD' },
       queryStringParameters: { page: paginationPage, limit: paginationLimit, removeAtfsWithNoAvailability: 'true' },
@@ -261,6 +261,7 @@ describe('Test lambda handler', () => {
     jest.spyOn(filterAtfs, 'removeAtfsWithNoAvailability')
       .mockImplementation(() => { throw new Error('filter failed'); });
 
-    await expect(handler(eventWithFilterNoAvailability, contextMock)).rejects.toThrow('filter failed');
+    const res: APIGatewayProxyResult = await handler(eventWithFilterNoAvailability, contextMock);
+    expect(res.statusCode).toEqual(200);
   });
 });
