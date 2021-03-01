@@ -1,6 +1,6 @@
 # hvt-geolocation
 
-A Serverless Node lambda (GeolocationFunction) for querying, sorting (nearest-frist) and paginating ATFs based on a supplied postcode.
+A Serverless Node lambda (GeolocationFunction) for querying, sorting (nearest-first) and paginating ATFs based on a supplied postcode.
 
 ## Requirements
 
