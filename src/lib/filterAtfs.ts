@@ -3,12 +3,16 @@ import { isValid } from 'date-fns';
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
 
 // eslint-disable-next-line max-len
-const removeAtfsWithNoGeolocationData = (items: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => items.filter((item) => item.geoLocation
-   && item.geoLocation.lat && item.geoLocation.long);
+const removeAtfsWithNoGeolocationData = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => {
+  if (atf.name === 'ATF1') {
+    console.log(`ATF1: ${(atf.geoLocation && atf.geoLocation.lat && atf.geoLocation.long).toString()}`);
+  }
+  return atf.geoLocation && atf.geoLocation.lat && atf.geoLocation.long;
+});
 
 // eslint-disable-next-line max-len
-const removeAtfsWithNoAvailability = (items: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => items.filter((item) => item?.availability?.isAvailable !== false
-  || !isAvailabilityInformationUpToDate(item?.availability?.endDate));
+const removeAtfsWithNoAvailability = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => atf?.availability?.isAvailable !== false
+  || !isAvailabilityInformationUpToDate(atf?.availability?.endDate));
 
 const isAvailabilityInformationUpToDate = (date: string | undefined): boolean => date
   && isValid(date) && !isDateBeforeToday(date);

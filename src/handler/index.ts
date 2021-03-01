@@ -59,11 +59,11 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       log.error(`An unexpected error occurred when fetching ATFs: ${errorString}`);
       throw error;
     });
-  // Filter out those with no availability
+  // Filtering
+  atfs.Items = filterAtfs.removeAtfsWithNoGeolocationData(atfs.Items);
+  log.info(`ATFs after filtering out those with no geolocation data [${atfs.Count}]`);
   if (removeNoAvailabilityFlag) {
     try {
-      atfs.Items = filterAtfs.removeAtfsWithNoGeolocationData(atfs.Items);
-      log.info(`ATFs after filtering out those with no geolocation data [${atfs.Count}]`);
       atfs.Items = filterAtfs.removeAtfsWithNoAvailability(atfs.Items);
       log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
     } catch (error) {
