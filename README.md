@@ -20,7 +20,15 @@ A Serverless Node lambda (GeolocationFunction) for querying, sorting (nearest-fi
 1. To ensure that the lambdas have been successfully served, run the following command in a separate terminal:
     - `curl --request GET http://localhost:3008/<POSTCODE-HERE>?page=1&limit=5`
     - the response should be in the following format: `{ "Items": [ <ATF-1>, <ATF-2>, ... ] }`
+    
+### Run and watch Locally
 
+As steps above but instead of `build:dev`
+- `npm run watch:dev`
+
+and in a separate terminal, run
+
+- `npm run start:dev`
 
 ## Debug Locally (VS Code only)
 

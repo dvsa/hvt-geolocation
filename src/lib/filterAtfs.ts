@@ -3,12 +3,8 @@ import { isValid } from 'date-fns';
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
 
 // eslint-disable-next-line max-len
-const removeAtfsWithNoGeolocationData = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => {
-  if (atf.name === 'ATF1') {
-    console.log(`ATF1: ${(atf.geoLocation && atf.geoLocation.lat && atf.geoLocation.long).toString()}`);
-  }
-  return atf.geoLocation && atf.geoLocation.lat && atf.geoLocation.long;
-});
+const removeAtfsWithNoGeolocationData = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => atf?.geoLocation != null
+  && atf?.geoLocation?.lat != null && atf?.geoLocation?.long != null);
 
 // eslint-disable-next-line max-len
 const removeAtfsWithNoAvailability = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => atf?.availability?.isAvailable !== false
