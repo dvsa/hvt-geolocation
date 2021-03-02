@@ -1,10 +1,16 @@
 import { utcToZonedTime } from 'date-fns-tz';
 import { isValid } from 'date-fns';
 import { AuthorisedTestingFacility } from '../models/authorisedTestingFacility';
+import { Logger } from '../util/logger';
 
 // eslint-disable-next-line max-len
-const removeAtfsWithNoGeolocationData = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => atf?.geoLocation != null
-  && atf?.geoLocation?.lat != null && atf?.geoLocation?.long != null);
+const removeAtfsWithNoGeolocationData = (atfs: AuthorisedTestingFacility[], logger: Logger): AuthorisedTestingFacility[] => atfs.filter((atf) => {
+  if (atf?.geoLocation != null && atf?.geoLocation?.lat != null && atf?.geoLocation?.long != null) {
+    return true;
+  }
+  logger.warn(`ATF removed from results due to an error in geolocation data. ID: ${atf.id}`);
+  return false;
+});
 
 // eslint-disable-next-line max-len
 const removeAtfsWithNoAvailability = (atfs: AuthorisedTestingFacility[]): AuthorisedTestingFacility[] => atfs.filter((atf) => atf?.availability?.isAvailable !== false

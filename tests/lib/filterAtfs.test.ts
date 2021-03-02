@@ -1,5 +1,6 @@
 import { AuthorisedTestingFacility } from '../../src/models/authorisedTestingFacility';
 import { filterAtfs } from '../../src/lib/filterAtfs';
+import { Logger, logger } from '../../src/util/logger';
 
 describe('filterAtfs library unit tests', () => {
   describe('removeAtfsWithNoAvailability tests', () => {
@@ -83,6 +84,7 @@ describe('filterAtfs library unit tests', () => {
   });
 
   describe('removeAtfsWithNoGeolocationData', () => {
+    const log: Logger = logger.create('apiRequestId', 'correlationId');
     test('ATFs with no geolocation property are removed from the list', () => {
       const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
         { availability: { isAvailable: false } },
@@ -90,7 +92,7 @@ describe('filterAtfs library unit tests', () => {
         { geoLocation: { lat: 4, long: 2 } },
         { geoLocation: { lat: 2, long: 4 } },
       ];
-      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
       const expectedAtfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
         { geoLocation: { lat: 4, long: 2 } },
         { geoLocation: { lat: 2, long: 4 } },
@@ -103,7 +105,7 @@ describe('filterAtfs library unit tests', () => {
         { geoLocation: { lat: 4, long: 2 } },
         { geoLocation: { lat: 2, long: 4 } },
       ];
-      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
       expect(result).toEqual(atfs);
     });
 
@@ -113,7 +115,7 @@ describe('filterAtfs library unit tests', () => {
         { geoLocation: { lat: null, long: 4 } },
         { geoLocation: { lat: undefined, long: 3 } },
       ];
-      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
       expect(result).toEqual([]);
     });
 
@@ -123,7 +125,7 @@ describe('filterAtfs library unit tests', () => {
         { geoLocation: { lat: null, long: 4 } },
         { geoLocation: { lat: undefined, long: 3 } },
       ];
-      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
       expect(result).toEqual([]);
     });
 
@@ -134,7 +136,7 @@ describe('filterAtfs library unit tests', () => {
         { availability: { isAvailable: false } },
         { availability: { isAvailable: false } },
       ];
-      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs);
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
       expect(result).toEqual([]);
     });
   });

@@ -60,7 +60,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       throw error;
     });
   // Filtering
-  atfs.Items = filterAtfs.removeAtfsWithNoGeolocationData(atfs.Items);
+  atfs.Items = filterAtfs.removeAtfsWithNoGeolocationData(atfs.Items, log);
   log.info(`ATFs after filtering out those with no geolocation data [${atfs.Items.length}]`);
   if (removeNoAvailabilityFlag) {
     try {
@@ -89,9 +89,8 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
     log.warn(`An unexpected error occurred when paginating ATFs: ${errorString}`);
   }
-
   return Promise.resolve({
     statusCode: 200,
-    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Count }),
+    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Items.length }),
   });
 };

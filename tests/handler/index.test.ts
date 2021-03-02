@@ -56,6 +56,7 @@ describe('Test lambda handler', () => {
       .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
       .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
     jest.spyOn(sortAtfs, 'nearestFirst').mockReturnValue(sortedAtfsMock);
+    jest.spyOn(pagination, 'paginate').mockReturnValueOnce(paginatedAtfsMock);
 
     const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
 
@@ -63,7 +64,7 @@ describe('Test lambda handler', () => {
     expect(res.body).toEqual(JSON.stringify({
       Items: paginatedAtfsMock,
       Count: paginatedAtfsMock.length,
-      ScannedCount: unsortedAtfs.length,
+      ScannedCount: paginatedAtfsMock.length,
     }));
   });
 
@@ -224,7 +225,7 @@ describe('Test lambda handler', () => {
     await expect(handler(eventMock, contextMock)).rejects.toThrow('oops!');
   });
 
-  test('should throw error when failed to sort ATFs', async () => {
+  test('should still return the ATFs unsorted if an error is thrown during sorting', async () => {
     const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
       data: { postcode: eventMock.pathParameters.postcode, lat: 0, long: 0 },
     };
@@ -236,8 +237,36 @@ describe('Test lambda handler', () => {
       .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
       .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
     jest.spyOn(sortAtfs, 'nearestFirst').mockImplementation(() => { throw new Error('oops!'); });
+    const expectedAtfs = unsortedAtfs.slice(0, 10);
+    jest.spyOn(pagination, 'paginate').mockReturnValueOnce(expectedAtfs);
 
-    await expect(handler(eventMock, contextMock)).rejects.toThrow('oops!');
+    const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual(JSON.stringify({
+      Items: expectedAtfs,
+      Count: expectedAtfs.length,
+      ScannedCount: expectedAtfs.length,
+    }));
+  });
+
+  test('should remove any ATFs that do not have geolocation data', async () => {
+    const postcodeResponseMock: AxiosResponse = <AxiosResponse> {
+      data: { postcode: eventMock.pathParameters.postcode, lat: 0, long: 0 },
+    };
+    const unsortedAtfs: AuthorisedTestingFacility[] = createAtfsSortedDescByLatLong(50);
+    unsortedAtfs[0].geoLocation = { lat: null, long: undefined };
+    const atfsResponseMock: AxiosResponse = <AxiosResponse> {
+      data: { Items: unsortedAtfs, Count: unsortedAtfs.length },
+    };
+    const sortedAtfsMock: AuthorisedTestingFacility[] = unsortedAtfs.slice().reverse();
+    jest.spyOn(request, 'get')
+      .mockReturnValueOnce(Promise.resolve(postcodeResponseMock))
+      .mockReturnValueOnce(Promise.resolve(atfsResponseMock));
+    const sortAtfsSpy = jest.spyOn(sortAtfs, 'nearestFirst').mockReturnValue(sortedAtfsMock);
+
+    const res: APIGatewayProxyResult = await handler(eventMock, contextMock);
+    expect(res.statusCode).toEqual(200);
+    expect(sortAtfsSpy).toHaveBeenLastCalledWith(expect.anything(), unsortedAtfs.slice(1));
   });
 
   test('should log any errors occurred during filtering but continue with the response', async () => {
