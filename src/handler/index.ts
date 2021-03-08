@@ -91,6 +91,6 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   }
   return Promise.resolve({
     statusCode: 200,
-    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Items.length }),
+    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Count }),
   });
 };

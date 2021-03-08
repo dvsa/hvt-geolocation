@@ -64,7 +64,7 @@ describe('Test lambda handler', () => {
     expect(res.body).toEqual(JSON.stringify({
       Items: paginatedAtfsMock,
       Count: paginatedAtfsMock.length,
-      ScannedCount: paginatedAtfsMock.length,
+      ScannedCount: unsortedAtfs.length,
     }));
   });
 
@@ -245,7 +245,7 @@ describe('Test lambda handler', () => {
     expect(res.body).toEqual(JSON.stringify({
       Items: expectedAtfs,
       Count: expectedAtfs.length,
-      ScannedCount: expectedAtfs.length,
+      ScannedCount: unsortedAtfs.length,
     }));
   });
 
