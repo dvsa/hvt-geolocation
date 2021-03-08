@@ -59,11 +59,13 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       log.error(`An unexpected error occurred when fetching ATFs: ${errorString}`);
       throw error;
     });
-  // Filter out those with no availability
+  // Filtering
+  atfs.Items = filterAtfs.removeAtfsWithNoGeolocationData(atfs.Items, log);
+  log.info(`ATFs after filtering out those with no geolocation data [${atfs.Items.length}]`);
   if (removeNoAvailabilityFlag) {
     try {
       atfs.Items = filterAtfs.removeAtfsWithNoAvailability(atfs.Items);
-      log.info(`ATFs after filtering out those with no availability [${atfs.Count}]`);
+      log.info(`ATFs after filtering out those with no availability [${atfs.Items.length}]`);
     } catch (error) {
       const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
       log.error(`An unexpected error occurred when filtering ATFs: ${errorString}`);
@@ -73,24 +75,22 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
   // Sort ATFs
   try {
     atfs.Items = sortAtfs.nearestFirst(geoLocation, atfs.Items);
-    log.info(`Sorted ATFs [${atfs.Count}]`);
+    log.info(`Sorted ATFs [${atfs.Items.length}]`);
   } catch (error) {
     const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
     log.error(`An unexpected error occurred when sorting ATFs: ${errorString}`);
-    throw error;
   }
 
   // Paginate ATFs
   try {
     atfs.Items = pagination.paginate(atfs.Items, page, limit);
-    log.info(`Paginated ATFs [${atfs.Count}]; page [${page}], limit [${limit}]`);
+    log.info(`Paginated ATFs [${atfs.Items.length}]; page [${page}], limit [${limit}]`);
   } catch (error) {
     const errorString: string = JSON.stringify(error, Object.getOwnPropertyNames(error));
     log.warn(`An unexpected error occurred when paginating ATFs: ${errorString}`);
   }
-
   return Promise.resolve({
     statusCode: 200,
-    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Count }),
+    body: JSON.stringify({ Items: atfs.Items, Count: atfs.Items.length, ScannedCount: atfs.Items.length }),
   });
 };

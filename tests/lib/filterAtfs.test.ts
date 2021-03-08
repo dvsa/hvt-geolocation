@@ -1,5 +1,6 @@
 import { AuthorisedTestingFacility } from '../../src/models/authorisedTestingFacility';
 import { filterAtfs } from '../../src/lib/filterAtfs';
+import { Logger, logger } from '../../src/util/logger';
 
 describe('filterAtfs library unit tests', () => {
   describe('removeAtfsWithNoAvailability tests', () => {
@@ -79,6 +80,88 @@ describe('filterAtfs library unit tests', () => {
       ];
       const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoAvailability(atfs);
       expect(result).toEqual(atfs);
+    });
+  });
+
+  describe('removeAtfsWithNoGeolocationData', () => {
+    const log: Logger = logger.create('apiRequestId', 'correlationId');
+    let logSpy;
+    beforeEach(() => {
+      logSpy = jest.spyOn(log, 'warn').mockImplementation(() => 'Removed');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('ATFs with no geolocation property are removed from the list', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { availability: { isAvailable: false } },
+        { availability: { isAvailable: false } },
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
+      const expectedAtfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ];
+      expect(result).toEqual(expectedAtfs);
+      expect(logSpy).toHaveBeenCalledTimes(2);
+    });
+
+    test('ATFs with geolocation and a latitude and longitude are not removed', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
+      expect(result).toEqual(atfs);
+      expect(logSpy).not.toBeCalled();
+    });
+
+    test('ATFs with missing latitude property are removed from the list', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { geoLocation: { long: 5 } },
+        { geoLocation: { lat: null, long: 4 } },
+        { geoLocation: { lat: undefined, long: 3 } },
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
+      expect(result).toEqual([
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ]);
+      expect(logSpy).toHaveBeenCalledTimes(3);
+    });
+
+    test('ATFs with missing longitude property are removed from the list', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { geoLocation: { lat: 5 } },
+        { geoLocation: { long: null, lat: 4 } },
+        { geoLocation: { long: undefined, lat: 3 } },
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
+      expect(result).toEqual([
+        { geoLocation: { lat: 4, long: 2 } },
+        { geoLocation: { lat: 2, long: 4 } },
+      ]);
+      expect(logSpy).toHaveBeenCalledTimes(3);
+    });
+
+    test('an empty list is returned if none of the ATFs have a geolocation property', () => {
+      const atfs: AuthorisedTestingFacility[] = <AuthorisedTestingFacility[]><unknown>[
+        { availability: { isAvailable: false } },
+        { availability: { isAvailable: false } },
+        { availability: { isAvailable: false } },
+        { availability: { isAvailable: false } },
+      ];
+      const result: AuthorisedTestingFacility[] = filterAtfs.removeAtfsWithNoGeolocationData(atfs, log);
+      expect(result).toEqual([]);
+      expect(logSpy).toHaveBeenCalledTimes(4);
     });
   });
 });

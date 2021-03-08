@@ -11,6 +11,7 @@
     "build:dev": "webpack-cli --config webpack.development.js",
     "build:prod": "webpack-cli --config webpack.production.js",
     "start:dev": "sam local start-api -p 3008 --docker-network hvt-network",
+    "watch:dev": "webpack-cli --config webpack.development.watch.js",
     "invoke": "sam local invoke"
   },
   "contributors": [
