@@ -11,6 +11,7 @@
     "build:dev": "webpack-cli --config webpack.development.js",
     "build:prod": "webpack-cli --config webpack.production.js",
     "start:dev": "sam local start-api -p 3008 --docker-network hvt-network",
+    "watch:dev": "webpack-cli --config webpack.development.watch.js",
     "invoke": "sam local invoke"
   },
   "contributors": [
@@ -23,6 +24,8 @@
   "dependencies": {
     "aws-sdk": "^2.747.0",
     "axios": "^0.21.1",
+    "date-fns": "^2.17.0",
+    "date-fns-tz": "^1.1.2",
     "dotenv": "^8.2.0"
   },
   "devDependencies": {

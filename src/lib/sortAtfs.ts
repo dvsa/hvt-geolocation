@@ -31,7 +31,6 @@ const nearestFirst = (geoLocation: GeoLocation, items: AuthorisedTestingFacility
     atf.geoLocation.distance = Number((distance / 1609).toFixed(2)); // d in miles to 2 decimal points
   });
 
-  // eslint-disable-next-line max-len
   items.sort((a: AuthorisedTestingFacility, b: AuthorisedTestingFacility) => a.geoLocation.distance - b.geoLocation.distance);
 
   return items;
