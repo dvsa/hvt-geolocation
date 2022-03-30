@@ -23,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.747.0",
-    "axios": "^0.26.0",
+    "axios": "^0.26.1",
     "date-fns": "^2.18.0",
     "aws-sdk": "^2.814.0",
     "date-fns-tz": "^1.1.3",
